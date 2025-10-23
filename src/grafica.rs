@@ -46,6 +46,7 @@ impl Grafica {
         self.vertices[a*self.size + b] = p;
         self.vertices[b*self.size + a] = p;
         self.pesos.push(p);
+        self.peso_arbol_generador += p;
     }
     
 /// Recibe los vertices que forman parte del arbol para aristas 
@@ -79,6 +80,7 @@ impl Grafica {
 
             visitados[vertice.hijo] = true;
             arbol.agregar_arista(vertice.padre, vertice.hijo, peso.into_inner() );
+            
             n += 1;
 
             if n >= k-1 {
