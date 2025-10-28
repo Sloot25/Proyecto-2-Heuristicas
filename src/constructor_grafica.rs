@@ -1,8 +1,8 @@
 use std::fs::read_to_string;
 use std::collections::HashMap;
 use std::fmt::Write;
+use std::collections::BTreeSet;
 
-use crate::HashSet;
 use crate::Grafica;
 
 pub struct Constructor_grafica {
@@ -25,7 +25,7 @@ impl Constructor_grafica {
     
     pub fn cargar_datos(&mut self) -> Grafica{
         let contenido:String = read_to_string(self.archivo.clone()).unwrap();
-        let mut visitado = HashSet::<String>::new();
+        let mut visitado = BTreeSet::<String>::new();
         let lineas: Vec<&str> = contenido.lines().collect();
         let mut size:usize = 0;
     

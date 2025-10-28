@@ -1,6 +1,6 @@
 use std::fs::read_to_string;
 use std::collections::HashMap;
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 use std::fmt::Write;
 
 use ordered_float::OrderedFloat;
@@ -66,7 +66,7 @@ impl Grafica {
     }
 
 
-    pub fn arbol_generador_minimo(&mut self, vertices_del_arbol:HashSet<usize>, vertice_inicial: usize, k: usize) ->Grafica {
+    pub fn arbol_generador_minimo(&mut self, vertices_del_arbol:BTreeSet<usize>, vertice_inicial: usize, k: usize) ->Grafica {
         let mut arbol = Grafica::new(self.size);
         let mut heap = PairingHeap::new();
         let mut visitados:Vec<bool> = vec![false; self.size];
@@ -127,7 +127,7 @@ impl Grafica {
 mod tests {
     use super::*;
     use crate::constructor_grafica::Constructor_grafica;
-    use crate::HashSet;
+    use crate::BTreeSet;
     use crate::PeSOA;
 
     fn construir_grafica() -> Grafica {
@@ -143,7 +143,7 @@ mod tests {
         let mut g = constructor.cargar_datos();
         arbol.agregar_arista(*constructor.id_to_int.get("B").unwrap(),*constructor.id_to_int.get("C").unwrap(),2.0);
         arbol.agregar_arista(*constructor.id_to_int.get("B").unwrap(),*constructor.id_to_int.get("D").unwrap(), 3.0);
-        let mut h = HashSet::<usize>::new();
+        let mut h = BTreeSet::<usize>::new();
         h.insert(*constructor.id_to_int.get("B").unwrap());
         h.insert(*constructor.id_to_int.get("C").unwrap());
         h.insert(*constructor.id_to_int.get("D").unwrap());
@@ -167,7 +167,7 @@ mod tests {
         
         arbol.agregar_arista(*constructor.id_to_int.get("B").unwrap(),*constructor.id_to_int.get("C").unwrap(),2.0);
         arbol.agregar_arista(*constructor.id_to_int.get("B").unwrap(),*constructor.id_to_int.get("D").unwrap(), 3.0);
-        let mut h = HashSet::<usize>::new();
+        let mut h = BTreeSet::<usize>::new();
         h.insert(*constructor.id_to_int.get("B").unwrap());
         h.insert(*constructor.id_to_int.get("C").unwrap());
         h.insert(*constructor.id_to_int.get("D").unwrap());

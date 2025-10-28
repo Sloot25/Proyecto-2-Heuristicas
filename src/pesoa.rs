@@ -1,6 +1,5 @@
-use crate::HashSet;
 use crate::Grafica;
-
+use std::collections::BTreeSet;
 use rand::prelude::IndexedRandom;
 use rand::SeedableRng;
 use rand::rngs::StdRng;
@@ -9,7 +8,7 @@ use rand::Rng;
 
 #[derive(Clone)]
 pub struct Pinguino {
-    pub solucion: HashSet<usize>,
+    pub solucion: BTreeSet<usize>,
     pub fitness: f64,
     pub identificador: usize,
 }
@@ -52,7 +51,7 @@ impl PeSOA {
         let mut pinguinos = Vec::new();
         let todos : Vec<usize> = (0..self.grafica.size).collect();
         for i in 0..num_pinguinos {
-            let sol : HashSet<usize> = todos.choose_multiple(&mut self.random, self.k).cloned().collect();
+            let sol : BTreeSet<usize> = todos.choose_multiple(&mut self.random, self.k).cloned().collect();
             let arbol = self.grafica.arbol_generador_minimo(sol.clone(), *sol.iter().next().unwrap(), self.k);
             let fit = self.calcular_peso(arbol);
             pinguinos.push(Pinguino {
