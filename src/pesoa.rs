@@ -10,7 +10,8 @@ use rand::Rng;
 #[derive(Clone)]
 pub struct Pinguino {
     pub solucion: HashSet<usize>,
-    pub fitness: f64
+    pub fitness: f64,
+    pub identificador: usize,
 }
 
 pub struct GrupoPinguinos {
@@ -50,13 +51,14 @@ impl PeSOA {
     pub fn iniciar_PeSOA(&mut self, num_pinguinos: usize, num_grupos: usize) {
         let mut pinguinos = Vec::new();
         let todos : Vec<usize> = (0..self.grafica.size).collect();
-        for _ in 0..num_pinguinos {
+        for i in 0..num_pinguinos {
             let sol : HashSet<usize> = todos.choose_multiple(&mut self.random, self.k).cloned().collect();
             let arbol = self.grafica.arbol_generador_minimo(sol.clone(), *sol.iter().next().unwrap(), self.k);
             let fit = self.calcular_peso(arbol);
             pinguinos.push(Pinguino {
                 solucion: sol,
                 fitness: fit,
+                identificador:i,
             });
         }
 
@@ -71,12 +73,12 @@ impl PeSOA {
         self.actualizar_pesos();
     }
 
-    fn iterar(&mut self) {
+    fn iterar(&mut self, clavados: usize) {
         let normalizador = self.normalizador;
         
         for grupo in &mut self.grupos {
             for pinguino in &mut grupo.pinguinos {
-         
+                for _ in 0..clavados {
                     let mut nueva = pinguino.solucion.clone();
                     if let Some(&vertice_quitar) = pinguino.solucion.iter().collect::<Vec<_>>().choose(&mut self.random) {
                         nueva.remove(&vertice_quitar);
@@ -110,7 +112,7 @@ impl PeSOA {
                     if fit < pinguino.fitness {
                         pinguino.solucion = nueva;
                         pinguino.fitness = fit;
-         
+                    }
                 }
             }
         }
@@ -135,10 +137,15 @@ impl PeSOA {
         self.actualizar_pesos();
     }
 
-    pub fn run_pesoa(&mut self,max_iteraciones : usize) {
-        for i in 0..max_iteraciones {
-            self.iterar();
+    pub fn run_pesoa(&mut self,niveles : usize, clavados: usize, epsilon: f64) {
+        let mut actual : f64 = 0.0;
+        let mut i = 0;
+        while niveles > i {
+            self.iterar(clavados);
             if let Some(mejor) = &self.mejor_pinguino_actual {
+                if actual - mejor.fitness < epsilon{
+                    i = i + 1;
+                } 
                 println!("Iteracion {}: Mejor peso = {}", i + 1, mejor.fitness);
             }
         }
@@ -155,7 +162,7 @@ impl PeSOA {
                     candidato = Some(p.clone());
                     min = p.fitness;
                 }
-//                println!("{}", p.fitness);
+                println!("Identificador {}, Costo {}",p.identificador, p.fitness);
             }
             grupo.mejor_pinguino = candidato;
             if let Some(mejor_local) = &grupo.mejor_pinguino {
