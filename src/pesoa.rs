@@ -24,8 +24,8 @@ pub struct PeSOA {
     mejor_solucion: f64,
     floyd: Vec<f64>,
     pub grafica: Grafica,
-    diametro_grafica: f64,
-    normalizador: f64,
+    pub diametro_grafica: f64,
+    pub normalizador: f64,
     k: usize,
     random: StdRng,
 }
@@ -83,7 +83,7 @@ impl PeSOA {
                         nueva.remove(&vertice_quitar);
                         let mut vertice_aniadir = None;
 
-                        if self.random.gen_range(0.0..1.0) < 0.6 {
+                        if self.random.gen_range(0.0..1.0) < 0.2 {
                             if let Some(mejor_local) = &grupo.mejor_pinguino {
                                 let candidatos:Vec<usize> = mejor_local.solucion.iter().filter(|&&v| !pinguino.solucion.contains(&v))
                                     .cloned().collect();
@@ -142,10 +142,11 @@ impl PeSOA {
         while niveles > i {
             self.iterar(clavados);
             if let Some(mejor) = &self.mejor_pinguino_actual {
-                if actual - mejor.fitness < epsilon{
+                if (actual - mejor.fitness).abs() < epsilon{
                     i = i + 1;
-                } 
-                println!("Iteracion {}: Mejor peso = {}", i + 1, mejor.fitness);
+                }
+                actual = mejor.fitness;
+                println!("Iteracion {}: Mejor peso = {}", i , mejor.fitness);
             }
         }
     }
@@ -161,7 +162,7 @@ impl PeSOA {
                     candidato = Some(p.clone());
                     min = p.fitness;
                 }
-                println!("Identificador {}, Costo {}",p.identificador, p.fitness);
+                //println!("Identificador {}, Costo {}",p.identificador, p.fitness);
             }
             grupo.mejor_pinguino = candidato;
             if let Some(mejor_local) = &grupo.mejor_pinguino {
@@ -173,6 +174,7 @@ impl PeSOA {
         }
         
         self.mejor_pinguino_actual = candidato_global;
+        println!("Mejor peso = {}", self.mejor_pinguino_actual.clone().unwrap().fitness);
     }
 
     fn buscar_diametro(&mut self) {
@@ -191,6 +193,7 @@ impl PeSOA {
         let mut i:usize = pesos_aristas.len() - k + 1;
         let mut normalizador : f64 = 0.0;
         while i < pesos_aristas.len() {
+            println!("A: {}", pesos_aristas[i]);
             normalizador = normalizador + pesos_aristas[i];
             i = i + 1;
         }
@@ -220,14 +223,18 @@ impl PeSOA {
     pub fn completar_grafica(&mut self) {
         self.floyd_warshall();
         self.buscar_diametro();
+        let mut pesada = 0.0;
         for i in 0..self.grafica.size {
             for j in 0..self.grafica.size {
                 if self.grafica.vertices[i * self.grafica.size + j] == 0.0{
-                    self.grafica.vertices[i * self.grafica.size + j] = self.diametro_grafica * self.floyd[i * self.grafica.size + j];
+                    self.grafica.vertices[i * self.grafica.size + j] = self.diametro_grafica * self.floyd[i * self.grafica.size + j] * (self.k as f64);
+                }
+                if pesada < self.grafica.vertices[i * self.grafica.size + j] {
+                    pesada = self.grafica.vertices[i*self.grafica.size + j];
                 }
             }
         }
-        //println!("{}", self.grafica.to_string())
+        println!("P: {}", pesada);
     }
 
     fn calcular_peso(&self, g: Grafica) -> f64 {
@@ -236,3 +243,20 @@ impl PeSOA {
 
     
 }
+/*
+#[cfg(test)]
+
+mod tests {
+    use super::*;
+    use crate::constructor_grafica::Constructor_grafica;
+    use crate::BTreeSet;
+
+    #[test]
+    fn ok_pesoa_conexa(){
+        let mut constructor = Constructor_grafica::new("archivo.txt".to_string());
+        let mut g = constructor.cargar_datos();
+        let mut vector = Vec::<f64>::new();
+        vector.push()
+    }
+}
+*/

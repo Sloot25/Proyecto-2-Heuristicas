@@ -5,6 +5,7 @@ use std::fmt::Write;
 
 use ordered_float::OrderedFloat;
 
+
 use pheap::PairingHeap;
 
 struct Arista {
@@ -65,7 +66,103 @@ impl Grafica {
         println!("{:?}",vector);
     }
 
+    pub fn mayor_grado(&self) -> usize {
+        let mut vertice_maximo_grado = 0;
+        let mut maximo_grado = 0;
+        for x in 0..self.size {
+            let mut contador = 0;
+            for y in 0..self.size {
+                if self.vertices[x * self.size + y] != 0.0 {
+                    contador += 1;
+                }
+            }
+            if contador > maximo_grado {
+                maximo_grado = contador;
+                vertice_maximo_grado = x;
+            }
+        }
+        return vertice_maximo_grado;
+    }
 
+    pub fn ancho(&self) -> i64 {
+        let mut maximo_grado = 0;
+        for x in 0..self.size {
+            let mut contador = 0;
+            for y in 0..self.size  {
+                if self.vertices [ x * self.size + y] != 0.0 {
+                    contador += 1; 
+                }
+            }
+            if contador > maximo_grado {
+                maximo_grado = contador;
+            }
+        }
+        return maximo_grado;
+    }
+    
+    pub fn altura(&self) -> i64 {
+        let mut vertice = self.mayor_grado();
+        let mut set = vec![0; self.size];
+        let mut heap = Vec::new();
+        let mut heap_2 = Vec::new();
+        let mut count = 1;
+        set[vertice] = 1;
+        while heap.len() != 0 {
+            let removed = heap.remove(0);
+            for x in 0..self.size {
+                let hijo = self.vertices[removed * self.size + x];
+                if hijo != 0.0 && set[x] == 0 {
+                    set[x] = 1;
+                    heap_2.push(x);
+                }
+            }
+            if heap.len() == 0 {
+                heap = heap_2.clone();
+                heap_2 = Vec::new();
+                count += 1;
+            }
+        }
+
+        return count;
+    }
+
+    pub fn bfs_ses(&self, toID: HashMap<usize, String>) {
+        let mut vertice = self.mayor_grado();
+        let mut set = vec![0; self.size];
+        let mut heap = Vec::new();
+        let mut heap_2 = Vec::new();
+        heap.push(vertice);
+        set[vertice] = 1;
+        while heap.len() != 0 {
+            let removed = heap.remove(0);
+            print!("{:?},", toID.get(&removed).unwrap());
+            for x in 0..self.size {
+                let hijo = self.vertices[removed * self.size + x];
+                if hijo != 0.0 && set[x] == 0 {
+                    heap_2.push(x);
+                    set[x] = 1;
+                }
+            }
+            if heap.len() == 0 {
+                println!();
+                heap = heap_2.clone();
+                heap_2 = Vec::new();
+            }
+        }
+        
+    }
+
+    pub fn grado_vertice(&self, vertice: usize) -> i64 {
+        let mut count = 0;
+        for y in 0..self.size {
+            let vec = self.vertices[vertice * self.size + y];
+            if vec != 0.0 {
+                count = count + 1;
+            }
+        }
+        return count;
+    }
+    
     pub fn arbol_generador_minimo(&mut self, vertices_del_arbol:BTreeSet<usize>, vertice_inicial: usize, k: usize) ->Grafica {
         let mut arbol = Grafica::new(self.size);
         let mut heap = PairingHeap::new();
