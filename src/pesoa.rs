@@ -149,6 +149,9 @@ impl PeSOA {
                 println!("Iteracion {}: Mejor peso = {}", i , mejor.fitness);
             }
         }
+
+        self.barrido();
+        println!("Solucion postBarrido: {}", self.mejor_pinguino_actual.clone().unwrap().fitness);
     }
     
     fn actualizar_pesos(&mut self) {
@@ -199,6 +202,47 @@ impl PeSOA {
         }
         return normalizador;
         
+    }
+
+    pub fn barrido(&mut self) {
+        let mut mejoro = true;
+
+        while mejoro {
+            mejoro = false;
+            if let Some(mejor) = &mut self.mejor_pinguino_actual {
+                let candidatos : Vec<usize> = (0..self.grafica.size)
+                    .filter(|v| !mejor.solucion.contains(v))
+                    .collect();
+                let solucion_a_iterar : Vec<usize> = mejor.solucion.iter().cloned().collect();
+                
+                'outer: for &v_remove in &solucion_a_iterar {
+                    let mut nueva_base = mejor.solucion.clone();
+                    nueva_base.remove(&v_remove);
+
+                    for &v_add in &candidatos {
+                        let mut nueva_sol = nueva_base.clone();
+                        nueva_sol.insert(v_add);
+
+                        let arbol = self.grafica.arbol_generador_minimo (
+                            nueva_sol.clone(),
+                            *nueva_sol.iter().next().unwrap(),
+                            self.k
+                        );
+                        let fit = arbol.peso_arbol_generador / self.normalizador;
+
+                        if fit < mejor.fitness {
+                            mejor.solucion = nueva_sol;
+                            mejor.fitness = fit;
+                            mejoro = true;
+                            println!("fit nuevo: {}", fit);
+                            break 'outer; 
+                        }
+                    }
+                }
+            } else {
+                break;
+            }
+        }            
     }
     
     fn floyd_warshall(&mut self) {

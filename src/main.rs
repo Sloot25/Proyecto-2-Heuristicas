@@ -102,13 +102,13 @@ fn main() {
 
 
     let clavados = 5;
-    let epsilon = 0.0001;
+    let epsilon = 0.000001;
     
     let k = args[4].parse::<usize>().expect("Error al parsear k");
 
     let num_pinguinos = 120;
     let num_grupos = 20;
-    let niveles = 240;
+    let niveles = 300;
 
     let semilla = args[2].parse::<i64>().expect("Error al parsear semilla");
     let semilla_2  = args[3].parse::<i64>().expect("Error al parsear semilla");
